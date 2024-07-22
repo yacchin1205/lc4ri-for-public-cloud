@@ -1,18 +1,17 @@
-FROM docker:18.06.3-ce as static-docker-source
+FROM docker:cli as static-docker-source
 
-FROM niicloudoperation/notebook:latest
+FROM niicloudoperation/notebook:feature-lab
 
 USER root
-RUN conda install awscli boto3 && apt-get update && apt-get install -y groff && \
+RUN conda install awscli boto3 && apt-get update && apt-get install -y groff gnupg2 && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y gnupg2
-ENV CLOUD_SDK_VERSION 343.0.0
+ENV CLOUD_SDK_VERSION 484.0.0
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 RUN apt-get -qqy update && apt-get install -qqy \
         curl \
         gcc \
-        python-dev \
+        python3-dev \
         apt-transport-https \
         lsb-release \
         openssh-client \
@@ -20,24 +19,23 @@ RUN apt-get -qqy update && apt-get install -qqy \
         expect && \
     pip install -U crcmod   && \
     export CLOUD_SDK_REPO="cloud-sdk" && \
-    echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && \
     apt-get update && \
-    apt-get install -y google-cloud-sdk=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-python=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-java=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-app-engine-go=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-datalab=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-datastore-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-pubsub-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-bigtable-emulator=${CLOUD_SDK_VERSION}-0 \
-        google-cloud-sdk-cbt=${CLOUD_SDK_VERSION}-0 \
-        kubectl && \
+    apt-get install -y \
+        google-cloud-cli=${CLOUD_SDK_VERSION}-0 \
+        kubectl \
+        google-cloud-cli-gke-gcloud-auth-plugin=${CLOUD_SDK_VERSION}-0 && \
     gcloud config set core/disable_usage_reporting true && \
     gcloud config set component_manager/disable_update_check true && \
     gcloud config set metrics/environment github_docker_image && \
     gcloud --version && \
-    docker --version && kubectl version --client
+    docker --version && kubectl version --client && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* && \
+    chown $NB_USER:users -R $HOME/.config/gcloud
+RUN curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && \
+    chmod 700 /tmp/get_helm.sh && \
+    /tmp/get_helm.sh
 
 # authenticator
 RUN curl -o /usr/bin/heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && \
