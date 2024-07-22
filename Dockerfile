@@ -37,17 +37,6 @@ RUN curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/m
     chmod 700 /tmp/get_helm.sh && \
     /tmp/get_helm.sh
 
-# authenticator
-RUN curl -o /usr/bin/heptio-authenticator-aws https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-06-05/bin/linux/amd64/heptio-authenticator-aws && \
-    curl -o /usr/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.13.7/2019-06-11/bin/linux/amd64/aws-iam-authenticator && \
-    chmod +x /usr/bin/heptio-authenticator-aws /usr/bin/aws-iam-authenticator
-
-#RUN curl -L https://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz > /tmp/helm.tar.gz && \
-#    cd /tmp/ && tar zxvf helm.tar.gz && \
-#    cp /tmp/linux-amd64/helm /usr/local/bin/helm
-#RUN cd /tmp/ && curl -L https://github.com/jenkins-x/jx/releases/download/v1.3.1096/jx-linux-amd64.tar.gz | tar xzv && \
-#    mv /tmp/jx /usr/local/bin
-
 # utilities
 RUN pip install git+https://github.com/RCOSDP/rdmclient.git
 
