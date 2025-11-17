@@ -1,6 +1,6 @@
 FROM docker:cli as static-docker-source
 
-FROM yacchin1205/notebook@sha256:ac3347d01954c87c1f7f6d31ad32c081b801690433d3a6f801dca115e0ea43d6
+FROM yacchin1205/notebook@sha256:81787deede72511859489e252fc34bd1612c9de7ade09d9d4aa7fd76a730a8c8
 
 USER root
 RUN conda install awscli boto3 && apt-get update && apt-get install -y groff gnupg2 && \
