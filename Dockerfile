@@ -1,6 +1,6 @@
 FROM docker:cli as static-docker-source
 
-FROM yacchin1205/notebook:feature_jupyterlab-4.5.0rc0
+FROM yacchin1205/notebook@sha256:ac3347d01954c87c1f7f6d31ad32c081b801690433d3a6f801dca115e0ea43d6
 
 USER root
 RUN conda install awscli boto3 && apt-get update && apt-get install -y groff gnupg2 && \
